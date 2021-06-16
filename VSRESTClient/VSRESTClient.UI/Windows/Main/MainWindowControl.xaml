@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              mc:Ignorable="d"
              Name="MyToolWindow" 
@@ -68,8 +69,10 @@
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
-            <TextBox Background="#A5A5A5" Width="350" Height="50" Text="URL..." 
-                     VerticalContentAlignment="Center" FontSize="15" Padding="5"></TextBox>
+            <TextBox Background="#A5A5A5" Width="350" Height="50" Text="{Binding Url}" 
+                     VerticalContentAlignment="Center" FontSize="15" Padding="5" GotFocus="OnUrlFocus" LostFocus="OnUrlLostFocus" KeyUp="OnKeyUp">
+             
+            </TextBox>
         </StackPanel>
         
         <Grid Grid.Row="2" HorizontalAlignment="Center" Width="500">

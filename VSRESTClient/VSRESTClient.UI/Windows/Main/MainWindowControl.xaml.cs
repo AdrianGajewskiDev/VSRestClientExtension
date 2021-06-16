@@ -11,14 +11,15 @@ namespace VSRESTClient.UI.Windows.Main
     public partial class MainWindowControl : UserControl
     {
 
-
+        private readonly SearchbarViewModel viewModel;
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowControl"/> class.
         /// </summary>
         public MainWindowControl()
         {
             this.InitializeComponent();
-            this.DataContext = new SearchbarViewModel();
+            viewModel = new SearchbarViewModel();
+            this.DataContext = viewModel;
         }
 
         /// <summary>
@@ -30,10 +31,25 @@ namespace VSRESTClient.UI.Windows.Main
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-                (sender as Button).ContextMenu.IsEnabled = true;
-                (sender as Button).ContextMenu.PlacementTarget = (sender as Button);
-                (sender as Button).ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-                (sender as Button).ContextMenu.IsOpen = true;
+            (sender as Button).ContextMenu.IsEnabled = true;
+            (sender as Button).ContextMenu.PlacementTarget = (sender as Button);
+            (sender as Button).ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            (sender as Button).ContextMenu.IsOpen = true;
+        }
+
+        private void OnUrlFocus(object sender, RoutedEventArgs e)
+        {
+            viewModel.UrlFocusCommand.Execute(sender);
+        }
+
+        private void OnUrlLostFocus(object sender, RoutedEventArgs e)
+        {
+            viewModel.UrlLostFocusCommand.Execute(sender);
+        }
+
+        private void OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            viewModel.Url = (sender as TextBox).Text;
         }
     }
 }
