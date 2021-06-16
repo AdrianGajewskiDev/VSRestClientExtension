@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Controls;
+using VSRESTClient.UI.ViewModels;
 
 namespace VSRESTClient.UI.Windows.Main
 {
@@ -9,12 +10,15 @@ namespace VSRESTClient.UI.Windows.Main
     /// </summary>
     public partial class MainWindowControl : UserControl
     {
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowControl"/> class.
         /// </summary>
         public MainWindowControl()
         {
             this.InitializeComponent();
+            this.DataContext = new SearchbarViewModel();
         }
 
         /// <summary>
@@ -26,9 +30,10 @@ namespace VSRESTClient.UI.Windows.Main
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(
-                string.Format(System.Globalization.CultureInfo.CurrentUICulture, "Invoked '{0}'", this.ToString()),
-                "MainWindow");
+                (sender as Button).ContextMenu.IsEnabled = true;
+                (sender as Button).ContextMenu.PlacementTarget = (sender as Button);
+                (sender as Button).ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                (sender as Button).ContextMenu.IsOpen = true;
         }
     }
 }

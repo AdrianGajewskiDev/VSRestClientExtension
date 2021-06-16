@@ -41,12 +41,80 @@
         </StackPanel>
         
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" >
-            <Button  Width="100" Height="50" FontSize="20" Background="#EFEA6D">GET</Button>
+            <Button  Height="50" HorizontalAlignment="Left"  
+                     Name="button1" VerticalAlignment="Center" 
+                     Width="100" Click="button1_Click"
+                     Background="#EFEA6D">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="15" Text="{Binding CurrentHttpMethod}" Margin="10"/>
+                        <Path x:Name="BtnArrow" Margin="4" VerticalAlignment="Center" Width="10" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                    </StackPanel> 
+                </Button.Content>
+                <Button.ContextMenu>
+                    <ContextMenu >
+                        <MenuItem Foreground="#000"  
+                                  Command="{Binding UpdateHttpMethodCommand}" Header="GET" 
+                                  CommandParameter="GET"/>
+                        <MenuItem Foreground="#000" 
+                                  Command="{Binding UpdateHttpMethodCommand}" Header="POST"
+                                  CommandParameter="POST"/>
+                        <MenuItem Foreground="#000"  
+                                  Command="{Binding UpdateHttpMethodCommand}" Header="PUT"
+                                  CommandParameter="PUT"/>
+                        <MenuItem Foreground="#000"  
+                                  Command="{Binding UpdateHttpMethodCommand}" Header="DELETE"
+                                  CommandParameter="DELETE"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
             <TextBox Background="#A5A5A5" Width="350" Height="50" Text="URL..." 
-                     VerticalContentAlignment="Center" FontSize="20" Padding="5"></TextBox>
+                     VerticalContentAlignment="Center" FontSize="15" Padding="5"></TextBox>
         </StackPanel>
         
-        <Grid Grid.Row="2" HorizontalAlignment="Center">
+        <Grid Grid.Row="2" HorizontalAlignment="Center" Width="500">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}" >
+                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="FontSize" Value="20"></Setter>
+                    <Setter Property="Margin" Value="10 0"></Setter>
+                    <Setter Property="Height" Value="30"></Setter>
+                    <Setter Property="Foreground" Value="#FFFFFF"></Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" 
+                        BorderBrush="DarkGray" 
+                        CornerRadius="3" 
+                        Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="#EFEA6D" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Margin="10">
+                    <Button>Params</Button>
+                    <Button>Authorization</Button>
+                    <Button>Headers</Button>
+                    <Button>Body</Button>
+                </StackPanel>
+                <Separator Width="400" Background="#EFEA6D"/>
+            </StackPanel>
+            
+            
         </Grid>
     </Grid>
 </UserControl>
