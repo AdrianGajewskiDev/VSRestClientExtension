@@ -45,6 +45,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Builders\IControlBuilder.cs" />
+    <Compile Include="Builders\StackPanelBuilder.cs" />
     <Compile Include="Commands\ParameterizedCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />

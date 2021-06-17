@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using VSRESTClient.UI.Builders;
 using VSRESTClient.UI.ViewModels;
 
 namespace VSRESTClient.UI.Windows.Main
@@ -11,7 +13,6 @@ namespace VSRESTClient.UI.Windows.Main
     /// </summary>
     public partial class MainWindowControl : UserControl
     {
-
         private readonly SearchbarViewModel viewModel;
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowControl"/> class.
@@ -55,43 +56,57 @@ namespace VSRESTClient.UI.Windows.Main
 
         private void AddNewControl(object sender, RoutedEventArgs e)
         {
-            StackPanel panel = new StackPanel()
+
+            IControlBuilder<StackPanel> controlBuilder = new StackPanelBuilder();
+
+            controlBuilder.AddConfiguration(conf =>
             {
-                Orientation = Orientation.Horizontal,
-                Width = 230
-            };
+                conf.Orientation = Orientation.Horizontal;
+                conf.Width = 230;
+            });
 
-            var nameTextbox = new TextBox() 
+            controlBuilder.AddControl<TextBox>(conf =>
             {
-                Text = "Name...",
-                Width = 100
-            };
+                conf.Text = "Name...";
+                conf.Width = 100;
+            });
 
-            var valueTextbox = new TextBox()
+            controlBuilder.AddControl<TextBox>(conf =>
             {
-                Text = "Name...",
-                Width = 100
-            };
+                conf.Text = "Value...";
+                conf.Width = 100;
+            });
 
-            var button = new Button() 
+            controlBuilder.AddControl<Button>(conf =>
             {
-                Width = 20,
-                Content = "X",
-                Foreground = System.Windows.Media.Brushes.Red,
-            };
+                conf.Width = 20;
+                conf.Content = "X";
+                conf.Foreground = System.Windows.Media.Brushes.Red;
+                conf.Click += (ss, ee) =>
+                {
+                    ParamsListWrapper.Children.Remove(FindParent<StackPanel>(conf));
+                };
+            });
 
-           
-
-            panel.Children.Add(nameTextbox);
-            panel.Children.Add(valueTextbox);
-            panel.Children.Add(button);
-
-            button.Click += (ss, ee) =>
-            {
-                ParamsListWrapper.Children.Remove(panel);
-            };
+            var panel = controlBuilder.Build();
 
             ParamsListWrapper.Children.Add(panel);
+        }
+
+        public  T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            //get parent item
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            //we've reached the end of the tree
+            if (parentObject == null) return null;
+
+            //check if the parent matches the type we're looking for
+            T parent = parentObject as T;
+            if (parent != null)
+                return parent;
+            else
+                return FindParent<T>(parentObject);
         }
     }
 }
