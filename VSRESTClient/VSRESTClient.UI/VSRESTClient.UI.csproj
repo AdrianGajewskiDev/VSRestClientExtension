@@ -91,6 +91,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\close.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Windows\Main\close.png" />
     <Content Include="Windows\Main\Resources\MainWindowCommand.png" />
     <VSCTCompile Include="Windows\Main\VSRESTClientUIPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using VSRESTClient.UI.ViewModels;
@@ -50,6 +51,47 @@ namespace VSRESTClient.UI.Windows.Main
         private void OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             viewModel.Url = (sender as TextBox).Text;
+        }
+
+        private void AddNewControl(object sender, RoutedEventArgs e)
+        {
+            StackPanel panel = new StackPanel()
+            {
+                Orientation = Orientation.Horizontal,
+                Width = 230
+            };
+
+            var nameTextbox = new TextBox() 
+            {
+                Text = "Name...",
+                Width = 100
+            };
+
+            var valueTextbox = new TextBox()
+            {
+                Text = "Name...",
+                Width = 100
+            };
+
+            var button = new Button() 
+            {
+                Width = 20,
+                Content = "X",
+                Foreground = System.Windows.Media.Brushes.Red,
+            };
+
+           
+
+            panel.Children.Add(nameTextbox);
+            panel.Children.Add(valueTextbox);
+            panel.Children.Add(button);
+
+            button.Click += (ss, ee) =>
+            {
+                ParamsListWrapper.Children.Remove(panel);
+            };
+
+            ParamsListWrapper.Children.Add(panel);
         }
     }
 }

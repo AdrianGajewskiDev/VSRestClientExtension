@@ -73,7 +73,7 @@
             </TextBox>
         </StackPanel>
 
-        <Grid Grid.Row="2" HorizontalAlignment="Center" Width="500">
+        <Grid Grid.Row="2" HorizontalAlignment="Center" Width="400">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" >
                     <Setter Property="Background" Value="Transparent"></Setter>
@@ -115,10 +115,35 @@
                 <Separator Width="400" Background="#EFEA6D"/>
             </StackPanel>
 
-            <Grid Grid.Row="1" Background="red" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Params'}">
+            <Grid Grid.Row="1"  Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Params'}"
+                  HorizontalAlignment="Left" VerticalAlignment="Top" Name="paramsParent">
 
+                <Grid.Resources>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="Padding" Value="5"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                        <Setter Property="Background" Value="#A5A5A5"/>
+                        <Setter Property="BorderBrush" Value="White"/>
+                    </Style>
+                </Grid.Resources>
+
+                <StackPanel HorizontalAlignment="Left">
+                    <WrapPanel Name="ParamsListWrapper" Orientation="Vertical">
+                        <WrapPanel.Children>
+                            <StackPanel Orientation="Horizontal" Width="230">
+                                <TextBox Text="Name.." Width="100"></TextBox>
+                                <TextBox Text="Value.." Width="100"></TextBox>
+                                <Button Width="20" Content="X" Foreground="red"/>
+                            </StackPanel>
+                     
+                        </WrapPanel.Children>
+                    </WrapPanel>
+                    <Button Background="#EFEA6D" Width="50" Margin="10" Click="AddNewControl">Add</Button>
+
+                </StackPanel>
             </Grid>
-            <Grid Grid.Row="1" Background="Yellow" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+
+            <!--<Grid Grid.Row="1" Background="Yellow" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
 
             </Grid>
             <Grid Grid.Row="1" Background="Green" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
@@ -126,7 +151,7 @@
             </Grid>
             <Grid Grid.Row="1" Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
 
-            </Grid>
+            </Grid>-->
         </Grid>
     </Grid>
 </UserControl>
