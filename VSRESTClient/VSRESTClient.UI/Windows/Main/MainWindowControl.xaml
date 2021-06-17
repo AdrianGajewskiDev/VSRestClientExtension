@@ -2,9 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:converters="clr-namespace:VSRESTClient.UI.Converters"
              mc:Ignorable="d"
              Name="MyToolWindow" 
              d:DesignHeight="500"
@@ -30,6 +28,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.2*"/>
@@ -40,7 +39,7 @@
         <StackPanel Grid.Row="0" HorizontalAlignment="Center">
             <Label Foreground="#FFFFFF" FontSize="16">REST Client</Label>
         </StackPanel>
-        
+
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" >
             <Button  Height="50" HorizontalAlignment="Left"  
                      Name="button1" VerticalAlignment="Center" 
@@ -50,7 +49,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="15" Text="{Binding CurrentHttpMethod}" Margin="10"/>
                         <Path x:Name="BtnArrow" Margin="4" VerticalAlignment="Center" Width="10" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
-                    </StackPanel> 
+                    </StackPanel>
                 </Button.Content>
                 <Button.ContextMenu>
                     <ContextMenu >
@@ -71,10 +70,9 @@
             </Button>
             <TextBox Background="#A5A5A5" Width="350" Height="50" Text="{Binding Url}" 
                      VerticalContentAlignment="Center" FontSize="15" Padding="5" GotFocus="OnUrlFocus" LostFocus="OnUrlLostFocus" KeyUp="OnKeyUp">
-             
             </TextBox>
         </StackPanel>
-        
+
         <Grid Grid.Row="2" HorizontalAlignment="Center" Width="500">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" >
@@ -109,15 +107,26 @@
 
             <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Margin="10">
-                    <Button>Params</Button>
-                    <Button>Authorization</Button>
-                    <Button>Headers</Button>
-                    <Button>Body</Button>
+                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Params">Params</Button>
+                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Authorization">Authorization</Button>
+                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Headers">Headers</Button>
+                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Body">Body</Button>
                 </StackPanel>
                 <Separator Width="400" Background="#EFEA6D"/>
             </StackPanel>
-            
-            
+
+            <Grid Grid.Row="1" Background="red" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Params'}">
+
+            </Grid>
+            <Grid Grid.Row="1" Background="Yellow" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+
+            </Grid>
+            <Grid Grid.Row="1" Background="Green" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
+
+            </Grid>
+            <Grid Grid.Row="1" Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
+
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
