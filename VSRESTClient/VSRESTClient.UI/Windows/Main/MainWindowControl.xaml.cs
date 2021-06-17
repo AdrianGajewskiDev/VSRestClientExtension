@@ -1,8 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using VSRESTClient.Core.Utils;
 using VSRESTClient.UI.Builders;
 using VSRESTClient.UI.ViewModels;
 
@@ -13,71 +16,56 @@ namespace VSRESTClient.UI.Windows.Main
     /// </summary>
     public partial class MainWindowControl : UserControl
     {
-        private readonly SearchbarViewModel viewModel;
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindowControl"/> class.
-        /// </summary>
+        private readonly MainPageViewModel viewModel;
+   
         public MainWindowControl()
         {
             this.InitializeComponent();
-            viewModel = new SearchbarViewModel();
+            viewModel = new MainPageViewModel();
             this.DataContext = viewModel;
         }
 
-        /// <summary>
-        /// Handles click on the button by displaying a message box.
-        /// </summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event args.</param>
+       
         [SuppressMessage("Microsoft.Globalization", "CA1300:SpecifyMessageBoxOptions", Justification = "Sample code")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Default event handler naming pattern")]
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void OpenContextMenu(object sender, RoutedEventArgs e)
         {
             (sender as Button).ContextMenu.IsEnabled = true;
             (sender as Button).ContextMenu.PlacementTarget = (sender as Button);
             (sender as Button).ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             (sender as Button).ContextMenu.IsOpen = true;
         }
-
         private void OnUrlFocus(object sender, RoutedEventArgs e)
         {
             viewModel.UrlFocusCommand.Execute(sender);
         }
-
         private void OnUrlLostFocus(object sender, RoutedEventArgs e)
         {
             viewModel.UrlLostFocusCommand.Execute(sender);
         }
-
         private void OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             viewModel.Url = (sender as TextBox).Text;
         }
-
         private void AddNewControl(object sender, RoutedEventArgs e)
         {
-
-            IControlBuilder<StackPanel> controlBuilder = new StackPanelBuilder();
-
-            controlBuilder.AddConfiguration(conf =>
+            StackPanel panel  = new StackPanelBuilder()
+            .AddConfiguration(conf =>
             {
                 conf.Orientation = Orientation.Horizontal;
                 conf.Width = 230;
-            });
-
-            controlBuilder.AddControl<TextBox>(conf =>
+            })
+            .AddControl<TextBox>(conf =>
             {
                 conf.Text = "Name...";
                 conf.Width = 100;
-            });
-
-            controlBuilder.AddControl<TextBox>(conf =>
+            })
+            .AddControl<TextBox>(conf =>
             {
                 conf.Text = "Value...";
                 conf.Width = 100;
-            });
-
-            controlBuilder.AddControl<Button>(conf =>
+            })
+            .AddControl<Button>(conf =>
             {
                 conf.Width = 20;
                 conf.Content = "X";
@@ -86,14 +74,27 @@ namespace VSRESTClient.UI.Windows.Main
                 {
                     ParamsListWrapper.Children.Remove(FindParent<StackPanel>(conf));
                 };
-            });
-
-            var panel = controlBuilder.Build();
+            })
+            .Build();
 
             ParamsListWrapper.Children.Add(panel);
         }
+        private void FetchHttpParams(object sender, RoutedEventArgs e)
+        {
+            var childPanels = ParamsListWrapper.Children.OfType<StackPanel>();
 
-        public  T FindParent<T>(DependencyObject child) where T : DependencyObject
+            List<HttpParam> @params = new List<HttpParam>();
+
+            foreach (var panel in childPanels)
+            {
+                var textboxes = panel.Children.OfType<TextBox>().ToArray();
+
+                @params.Add(new HttpParam(textboxes[0].Text, textboxes[1].Text));
+            }
+
+            viewModel.FetchHttpParams(@params);
+        }
+        public T FindParent<T>(DependencyObject child) where T : DependencyObject
         {
             //get parent item
             DependencyObject parentObject = VisualTreeHelper.GetParent(child);

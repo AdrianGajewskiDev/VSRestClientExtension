@@ -43,7 +43,7 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" >
             <Button  Height="50" HorizontalAlignment="Left"  
                      Name="button1" VerticalAlignment="Center" 
-                     Width="100" Click="button1_Click"
+                     Width="100" Click="OpenContextMenu"
                      Background="#EFEA6D">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
@@ -73,9 +73,9 @@
             </TextBox>
         </StackPanel>
 
-        <Grid Grid.Row="2" HorizontalAlignment="Center" Width="400">
-            <Grid.Resources>
-                <Style TargetType="{x:Type Button}" >
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Width="400">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
                     <Setter Property="Background" Value="Transparent"></Setter>
                     <Setter Property="FontSize" Value="20"></Setter>
                     <Setter Property="Margin" Value="10 0"></Setter>
@@ -99,25 +99,39 @@
                         </Setter.Value>
                     </Setter>
                 </Style>
-            </Grid.Resources>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.2*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
+                <Style TargetType="{x:Type Button}" x:Key="SendButton">
+                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="FontSize" Value="20"></Setter>
+                    <Setter Property="Margin" Value="10 0"></Setter>
+                    <Setter Property="Height" Value="30"></Setter>
+                    <Setter Property="Foreground" Value="#000"></Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="border" 
+                        BorderBrush="DarkGray" 
+                        CornerRadius="5" 
+                        Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </StackPanel.Resources>
 
             <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Margin="10">
-                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Params">Params</Button>
-                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Authorization">Authorization</Button>
-                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Headers">Headers</Button>
-                    <Button Command="{Binding SwitchOptionsTab}" CommandParameter="Body">Body</Button>
+                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Params">Params</Button>
+                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Authorization">Authorization</Button>
+                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Headers">Headers</Button>
+                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Body">Body</Button>
                 </StackPanel>
                 <Separator Width="400" Background="#EFEA6D"/>
             </StackPanel>
 
             <Grid Grid.Row="1"  Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Params'}"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Name="paramsParent">
-
                 <Grid.Resources>
                     <Style TargetType="{x:Type TextBox}">
                         <Setter Property="Padding" Value="5"/>
@@ -126,8 +140,8 @@
                         <Setter Property="BorderBrush" Value="White"/>
                     </Style>
                 </Grid.Resources>
-
                 <StackPanel HorizontalAlignment="Left">
+                    <Label Foreground="#fff" Content="Once finished, please click 'Done' to append params to url."></Label>
                     <WrapPanel Name="ParamsListWrapper" Orientation="Vertical">
                         <WrapPanel.Children>
                             <StackPanel Orientation="Horizontal" Width="230">
@@ -138,20 +152,23 @@
                      
                         </WrapPanel.Children>
                     </WrapPanel>
-                    <Button Background="#EFEA6D" Width="50" Margin="10" Click="AddNewControl">Add</Button>
-
+                    <StackPanel Orientation="Horizontal" >
+                        <Button Background="Black" Width="70" Margin="10"  Click="AddNewControl" FontSize="14">Add New</Button>
+                        <Button Background="Black" Width="50" Margin="10"  Click="FetchHttpParams" FontSize="14">Done</Button>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
 
-            <!--<Grid Grid.Row="1" Background="Yellow" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+            <Grid Grid.Row="1" Height="50" Background="Yellow" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+            </Grid>
+            <Grid Grid.Row="1" Height="50"  Background="Green" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
 
             </Grid>
-            <Grid Grid.Row="1" Background="Green" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
+            <Grid Grid.Row="1" Height="50"  Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
 
             </Grid>
-            <Grid Grid.Row="1" Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
+            <Button Background="#EFEA6D" Command="{Binding SendRequestCommand}" Width="150" Style="{StaticResource SendButton}">Send</Button>
+        </StackPanel>
 
-            </Grid>-->
-        </Grid>
     </Grid>
 </UserControl>
