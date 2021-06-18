@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using VSRESTClient.Core.Http;
 using VSRESTClient.Core.Utils;
+using VSRESTClient.UI.Builders;
 using VSRESTClient.UI.Commands;
 using VSRESTClient.UI.Models;
 using VSRESTClient.UI.Utils;
@@ -38,7 +42,6 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(CurrentHttpMethod));
             }
         }
-
         public string CurrentOptionsTabOpened 
         {
             get 
@@ -54,7 +57,6 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(CurrentOptionsTabOpened));
             }
         }
-
         public string Url
         {
             get
@@ -68,6 +70,37 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(Url));
             }
         }
+        public string ResponseContent 
+        {
+            get => _responseModel.Content;
+            set
+            {
+                _responseModel.Content = value;
+                OnPropertyChanged(nameof(ResponseContent));
+            }
+        }
+        public string ResponseStatusCode 
+        {
+            get => $"Status Code: {ResponseStatusCodeNumber} {_responseModel.StatusCode}";
+            set
+            {
+                var statusCode = ParseEnumFromString<HttpStatusCode>(value);
+                _responseModel.StatusCode = statusCode;
+                OnPropertyChanged(nameof(ResponseStatusCode));
+            }
+        }
+        public string ResponseContentType 
+        {
+            get => $"Content Type: {_responseModel.ContentType ?? ""}";
+
+            set
+            {
+                _responseModel.ContentType = value;
+                OnPropertyChanged(nameof(ResponseContentType));
+            }
+        }
+        public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
+
         #endregion
 
         #region Events
@@ -78,7 +111,8 @@ namespace VSRESTClient.UI.ViewModels
         #region Private Members
         private SearchbarModel _searchbarModel;
         private OptionsModel _optionsModel;
-        private readonly WebClient _webClient;
+        private ResponseModel _responseModel;
+        private readonly Core.Http.WebClient _webClient;
         #endregion
 
         #region Constructor
@@ -88,11 +122,14 @@ namespace VSRESTClient.UI.ViewModels
             SwitchOptionsTab = new ParameterizedCommand(SwitchOptionsTabCallback);
             UrlFocusCommand = new RelayCommand(UrlFocusCallback);
             UrlLostFocusCommand = new RelayCommand(UrlLostFocusCallback);
-            SendRequestCommand = new RelayCommand(async () => await SendRequestCallback());
+#pragma warning disable VSTHRD101 // Avoid unsupported async delegates
+            SendRequestCommand = new RelayCommand(async () => await SendRequestCallbackAsync());
+#pragma warning restore VSTHRD101 // Avoid unsupported async delegates
 
             _searchbarModel = new SearchbarModel();
             _optionsModel = new OptionsModel();
-            _webClient = new WebClient();
+            _responseModel = new ResponseModel();
+            _webClient = new Core.Http.WebClient();
 
             CurrentHttpMethod = _searchbarModel.CurrentHttpMethod;
             Url = _searchbarModel.RequestUrl;
@@ -138,9 +175,28 @@ namespace VSRESTClient.UI.ViewModels
             if (Url.Equals(string.Empty))
                 Url = StaticStrings.DefaultUrl;
         }
-        private async Task SendRequestCallback()
+        private async Task SendRequestCallbackAsync()
         {
-            await _webClient.SendRequest(Url);
+            if (string.IsNullOrEmpty(Url) || Url.Equals(StaticStrings.DefaultUrl))
+                return;
+
+            var builder = new UrlBuilder(Url);
+
+            if (_optionsModel.HttpParams.Any())
+            {
+                foreach (var query in _optionsModel.HttpParams)
+                {
+                    builder.AddQueryParam(query);
+                }
+            }
+
+            var url = builder.Build();
+
+            var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod));
+
+            ResponseContent = response.Content;
+            ResponseStatusCode = response.StatusCode.ToString();
+            ResponseContentType = response.ContentType;
         }
 
         #endregion

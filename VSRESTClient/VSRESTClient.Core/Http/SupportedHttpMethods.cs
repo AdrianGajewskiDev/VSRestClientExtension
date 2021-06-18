@@ -1,4 +1,4 @@
-﻿namespace VSRESTClient.UI.Utils
+﻿namespace VSRESTClient.Core.Http
 {
     public enum SupportedHttpMethods
     {

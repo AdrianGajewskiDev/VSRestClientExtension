@@ -1,4 +1,5 @@
 ﻿using System;
+using VSRESTClient.Core.Http;
 using VSRESTClient.UI.Utils;
 
 namespace VSRESTClient.UI.Models
