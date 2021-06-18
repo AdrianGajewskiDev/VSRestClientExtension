@@ -96,13 +96,14 @@
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter Property="Foreground" Value="#EFEA6D" />
                                     </Trigger>
+                        
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
                 </Style>
                 <Style TargetType="{x:Type Button}" x:Key="SendButton">
-                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="Background" Value="#EFEA6D"></Setter>
                     <Setter Property="FontSize" Value="20"></Setter>
                     <Setter Property="Margin" Value="10 0"></Setter>
                     <Setter Property="Height" Value="30"></Setter>
@@ -119,6 +120,11 @@
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#B3AF51"/>
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </StackPanel.Resources>
 
@@ -140,9 +146,39 @@
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
                         <Setter Property="Background" Value="#A5A5A5"/>
                         <Setter Property="BorderBrush" Value="White"/>
+                   
                     </Style>
                 </Grid.Resources>
                 <StackPanel HorizontalAlignment="Left">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}" x:Key="OptionsButton">
+                            <Setter Property="Background" Value="#000"></Setter>
+                            <Setter Property="FontSize" Value="20"></Setter>
+                            <Setter Property="Margin" Value="10 0"></Setter>
+                            <Setter Property="Height" Value="30"></Setter>
+                            <Setter Property="Foreground" Value="#fff"></Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Name="border" 
+                                            BorderBrush="DarkGray" 
+                                            CornerRadius="5" 
+                                            Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#B3AF51"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="#B3AF51"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Resources>
                     <Label Foreground="#fff" Content="Once finished, please click 'Done' to append params to url."></Label>
                     <WrapPanel Name="ParamsListWrapper" Orientation="Vertical">
                         <WrapPanel.Children>
@@ -154,8 +190,8 @@
                         </WrapPanel.Children>
                     </WrapPanel>
                     <StackPanel Orientation="Horizontal" >
-                        <Button Background="Black" Width="70" Margin="10"  Click="AddNewControl" FontSize="14">Add New</Button>
-                        <Button Background="Black" Width="50" Margin="10"  Click="FetchHttpParams" FontSize="14">Done</Button>
+                        <Button Background="Black" Width="70" Margin="10"  Click="AddNewControl" FontSize="14" Style="{StaticResource OptionsButton}" Content="Add New"></Button>
+                        <Button Background="Black" Width="50" Margin="10"  Click="FetchHttpParams" Style="{StaticResource OptionsButton}" FontSize="14">Done</Button>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -168,7 +204,7 @@
             <Grid Grid.Row="1" Height="50"  Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
 
             </Grid>-->
-            <Button Background="#EFEA6D" Command="{Binding SendRequestCommand}" Width="150" Style="{StaticResource SendButton}">Send</Button>
+            <Button  Command="{Binding SendRequestCommand}" Width="150" Content="Send" Style="{StaticResource SendButton}"></Button>
         </StackPanel>
         <Grid Grid.Row="3">
             <Grid.RowDefinitions>

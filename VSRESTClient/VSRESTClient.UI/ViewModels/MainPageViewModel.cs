@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -194,9 +196,13 @@ namespace VSRESTClient.UI.ViewModels
 
             var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod));
 
-            ResponseContent = response.Content;
+            var formatedContent = Beautifier.Instance.Format(response.Content, response.ContentType);
+
+            ResponseContent = formatedContent;
             ResponseStatusCode = response.StatusCode.ToString();
             ResponseContentType = response.ContentType;
+
+
         }
 
         #endregion
