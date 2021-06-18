@@ -8,6 +8,9 @@
              d:DesignHeight="600"
              d:DesignWidth="500"
            >
+    <UserControl.Resources>
+        <ResourceDictionary Source="../../Styles/Buttons.xaml"/>
+    </UserControl.Resources>
     <Grid Background="#4F4B4B">
         <Grid.Resources>
             <Style TargetType="{x:Type Button}" >
@@ -76,64 +79,13 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" HorizontalAlignment="Center" Width="400">
-            <StackPanel.Resources>
-                <Style TargetType="{x:Type Button}">
-                    <Setter Property="Background" Value="Transparent"></Setter>
-                    <Setter Property="FontSize" Value="20"></Setter>
-                    <Setter Property="Margin" Value="10 0"></Setter>
-                    <Setter Property="Height" Value="30"></Setter>
-                    <Setter Property="Foreground" Value="#FFFFFF"></Setter>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Name="border" 
-                        BorderBrush="DarkGray" 
-                        CornerRadius="3" 
-                        Background="{TemplateBinding Background}">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Foreground" Value="#EFEA6D" />
-                                    </Trigger>
-                        
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-                <Style TargetType="{x:Type Button}" x:Key="SendButton">
-                    <Setter Property="Background" Value="#EFEA6D"></Setter>
-                    <Setter Property="FontSize" Value="20"></Setter>
-                    <Setter Property="Margin" Value="10 0"></Setter>
-                    <Setter Property="Height" Value="30"></Setter>
-                    <Setter Property="Foreground" Value="#000"></Setter>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Name="border" 
-                        BorderBrush="DarkGray" 
-                        CornerRadius="5" 
-                        Background="{TemplateBinding Background}">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="#B3AF51"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Resources>
 
             <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Margin="10">
-                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Params">Params</Button>
-                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Authorization">Authorization</Button>
-                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Headers">Headers</Button>
-                    <Button Command="{Binding SwitchOptionsTab}"  CommandParameter="Body">Body</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Params">Params</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Authorization">Authorization</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Headers">Headers</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Body">Body</Button>
                 </StackPanel>
                 <Separator Width="400" Background="#EFEA6D"/>
             </StackPanel>
@@ -141,44 +93,14 @@
             <Grid Grid.Row="1"  Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Params'}"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Name="paramsParent">
                 <Grid.Resources>
-                    <Style TargetType="{x:Type TextBox}">
+                    <Style TargetType="{x:Type TextBox}" >
                         <Setter Property="Padding" Value="5"/>
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
                         <Setter Property="Background" Value="#A5A5A5"/>
                         <Setter Property="BorderBrush" Value="White"/>
-                   
                     </Style>
                 </Grid.Resources>
                 <StackPanel HorizontalAlignment="Left">
-                    <StackPanel.Resources>
-                        <Style TargetType="{x:Type Button}" x:Key="OptionsButton">
-                            <Setter Property="Background" Value="#000"></Setter>
-                            <Setter Property="FontSize" Value="20"></Setter>
-                            <Setter Property="Margin" Value="10 0"></Setter>
-                            <Setter Property="Height" Value="30"></Setter>
-                            <Setter Property="Foreground" Value="#fff"></Setter>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Name="border" 
-                                            BorderBrush="DarkGray" 
-                                            CornerRadius="5" 
-                                            Background="{TemplateBinding Background}">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter Property="Background" Value="#B3AF51"/>
-                                </Trigger>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Foreground" Value="#B3AF51"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Resources>
                     <Label Foreground="#fff" Content="Once finished, please click 'Done' to append params to url."></Label>
                     <WrapPanel Name="ParamsListWrapper" Orientation="Vertical">
                         <WrapPanel.Children>
