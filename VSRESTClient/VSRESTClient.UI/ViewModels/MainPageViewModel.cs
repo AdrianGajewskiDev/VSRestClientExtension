@@ -21,6 +21,7 @@ namespace VSRESTClient.UI.ViewModels
     {
         #region Commands
         public ICommand UpdateHttpMethodCommand { get; set; }
+        public ICommand UpdateHAuthorizationTypeCommand { get; set; }
         public ICommand UrlFocusCommand { get; set; }
         public ICommand UrlLostFocusCommand { get; set; } 
         public ICommand SwitchOptionsTab { get; set; }
@@ -42,6 +43,22 @@ namespace VSRESTClient.UI.ViewModels
                 _searchbarModel.SetCurrentHttpMethod(method);
 
                 OnPropertyChanged(nameof(CurrentHttpMethod));
+            }
+        }
+
+        public string CurrentAuthorizationType
+        {
+            get
+            {
+                return _optionsModel.AuthorizationType.ToString();
+            }
+            set
+            {
+                var type = ParseEnumFromString<AuthorizationType>(value);
+
+                _optionsModel.SetCurrentAuthorizationType(type);
+
+                OnPropertyChanged(nameof(CurrentAuthorizationType));
             }
         }
         public string CurrentOptionsTabOpened 
@@ -103,6 +120,8 @@ namespace VSRESTClient.UI.ViewModels
         }
         public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
 
+        public List<Action> PrerequestActions = new List<Action>();
+
         #endregion
 
         #region Events
@@ -121,6 +140,7 @@ namespace VSRESTClient.UI.ViewModels
         public MainPageViewModel()
         {
             UpdateHttpMethodCommand = new ParameterizedCommand(UpdateHttpMethodCallback);
+            UpdateHAuthorizationTypeCommand = new ParameterizedCommand(UpdateAuthorizationTypeCallback);
             SwitchOptionsTab = new ParameterizedCommand(SwitchOptionsTabCallback);
             UrlFocusCommand = new RelayCommand(UrlFocusCallback);
             UrlLostFocusCommand = new RelayCommand(UrlLostFocusCallback);
@@ -151,9 +171,17 @@ namespace VSRESTClient.UI.ViewModels
         {
             _optionsModel.HttpParams = @params;
         }
+        public void FetchHttpHeaders(List<HttpHeader> @params)
+        {
+            _optionsModel.Headers = @params;
+        }
         public void RemoveParam(int index) 
         {
             _optionsModel.HttpParams.RemoveAt(index);
+        }
+        public void AddPreRequestAction(Action action)
+        {
+            PrerequestActions.Add(action);
         }
         #endregion
 
@@ -163,6 +191,12 @@ namespace VSRESTClient.UI.ViewModels
         {
             CurrentHttpMethod = httpMethod as string;
         }
+
+        private void UpdateAuthorizationTypeCallback(object parameter)
+        {
+            CurrentAuthorizationType = parameter as string;
+        }
+
         public void SwitchOptionsTabCallback(object value)
         {
             CurrentOptionsTabOpened = value as string;
@@ -181,6 +215,14 @@ namespace VSRESTClient.UI.ViewModels
         {
             if (string.IsNullOrEmpty(Url) || Url.Equals(StaticStrings.DefaultUrl))
                 return;
+
+            if (PrerequestActions.Any())
+            {
+                foreach (var action in PrerequestActions)
+                {
+                    action();
+                }
+            }
 
             var builder = new UrlBuilder(Url);
 
@@ -201,7 +243,6 @@ namespace VSRESTClient.UI.ViewModels
             ResponseContent = formatedContent;
             ResponseStatusCode = response.StatusCode.ToString();
             ResponseContentType = response.ContentType;
-
 
         }
 

@@ -30,7 +30,6 @@
         <Setter Property="FontSize" Value="20"></Setter>
         <Setter Property="Margin" Value="10 0"></Setter>
         <Setter Property="Height" Value="30"></Setter>
-        <Setter Property="Foreground" Value="#FFFFFF"></Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -49,5 +48,32 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    <Style TargetType="{x:Type Button}" x:Key="OptionsButton">
+        <Setter Property="Background" Value="#000"></Setter>
+        <Setter Property="FontSize" Value="20"></Setter>
+        <Setter Property="Margin" Value="10 0"></Setter>
+        <Setter Property="Height" Value="30"></Setter>
+        <Setter Property="Foreground" Value="#fff"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Name="border" 
+                                            BorderBrush="DarkGray" 
+                                            CornerRadius="5" 
+                                            Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#B3AF51"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="#B3AF51"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

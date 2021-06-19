@@ -51,6 +51,7 @@
     <Compile Include="Commands\ParameterizedCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Converters\StatusCodeToColorConverter.cs" />
+    <Compile Include="Converters\StringToColorConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Models\OptionsModel.cs" />
     <Compile Include="Models\ResponseModel.cs" />
@@ -98,6 +99,10 @@
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Styles\Textboxes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
     </Page>
     <Page Include="Windows\Main\MainWindowControl.xaml">
       <SubType>Designer</SubType>

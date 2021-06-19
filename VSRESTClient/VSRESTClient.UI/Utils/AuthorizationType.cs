@@ -5,5 +5,6 @@
         NoAuth,
         Bearer,
         ApiKey,
+        BasicAuth
     }
 }

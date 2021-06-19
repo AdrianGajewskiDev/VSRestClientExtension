@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VSRESTClient.Core.Utils;
 using VSRESTClient.UI.Utils;
 
@@ -15,6 +16,11 @@ namespace VSRESTClient.UI.Models
             Headers = new List<HttpHeader>();
             HttpParams = new List<HttpParam>();
             AuthorizationType = AuthorizationType.NoAuth;
+        }
+
+        internal void SetCurrentAuthorizationType(AuthorizationType type)
+        {
+            AuthorizationType = type;
         }
     }
 }

@@ -33,6 +33,7 @@
             </Style>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:StatusCodeToColorConverter x:Key="StatusCodeToColorConverter"/>
+            <converters:StringToColorConverter x:Key="StringToColorConverter"/>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.3*"/>
@@ -82,10 +83,10 @@
 
             <StackPanel Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Margin="10">
-                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Params">Params</Button>
-                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Authorization">Authorization</Button>
-                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Headers">Headers</Button>
-                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  CommandParameter="Body">Body</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  Foreground="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToColorConverter}, ConverterParameter='Params'}" CommandParameter="Params">Params</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  Foreground="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToColorConverter}, ConverterParameter='Authorization'}" CommandParameter="Authorization">Authorization</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  Foreground="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToColorConverter}, ConverterParameter='Headers'}" CommandParameter="Headers">Headers</Button>
+                    <Button Style="{StaticResource MenuTabsButtons}" Command="{Binding SwitchOptionsTab}"  Foreground="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToColorConverter}, ConverterParameter='Body'}" CommandParameter="Body">Body</Button>
                 </StackPanel>
                 <Separator Width="400" Background="#EFEA6D"/>
             </StackPanel>
@@ -101,31 +102,95 @@
                     </Style>
                 </Grid.Resources>
                 <StackPanel HorizontalAlignment="Left">
-                    <Label Foreground="#fff" Content="Once finished, please click 'Done' to append params to url."></Label>
                     <WrapPanel Name="ParamsListWrapper" Orientation="Vertical">
                         <WrapPanel.Children>
-                            <StackPanel Orientation="Horizontal" Width="230">
-                                <TextBox Text="Name.." Width="100"></TextBox>
-                                <TextBox Text="Value.." Width="100"></TextBox>
+                            <StackPanel Orientation="Horizontal" Width="330">
+                                <TextBox Text="Name.." Width="150"></TextBox>
+                                <TextBox Text="Value.." Width="150"></TextBox>
                             </StackPanel>
-                     
+
                         </WrapPanel.Children>
                     </WrapPanel>
                     <StackPanel Orientation="Horizontal" >
-                        <Button Background="Black" Width="70" Margin="10"  Click="AddNewControl" FontSize="14" Style="{StaticResource OptionsButton}" Content="Add New"></Button>
-                        <Button Background="Black" Width="50" Margin="10"  Click="FetchHttpParams" Style="{StaticResource OptionsButton}" FontSize="14">Done</Button>
+                        <Button Background="Black" Width="70" Margin="10"  Click="AddNewParamsControl" FontSize="14" Style="{StaticResource OptionsButton}" Content="Add New"></Button>
                     </StackPanel>
                 </StackPanel>
             </Grid>
 
-            <!--<Grid Grid.Row="1" Height="50" Background="Yellow" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+            <Grid Grid.Row="1" Height="150" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.2*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" FontSize="10" Grid.ColumnSpan="2" Foreground="#fff">The authorization header will be automatically generated when you send the request</Label>
+                <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1">
+                    <Button Height="40" 
+                     Style="{StaticResource SendButton}"
+                     Width="80" Click="OpenContextMenu"
+                     Background="#000" Margin="10">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontSize="13"  Foreground="#fff" Text="{Binding CurrentAuthorizationType}"/>
+                                <Path  Margin="4" VerticalAlignment="Center" Width="10" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                            </StackPanel>
+                        </Button.Content>
+                        <Button.ContextMenu>
+                            <ContextMenu >
+                                <MenuItem Foreground="#000"  
+                                          Command="{Binding UpdateHAuthorizationTypeCommand}"
+                                          CommandParameter="NoAuth"
+                                          Header="No Auth" />
+                                <MenuItem Foreground="#000" 
+                                          Command="{Binding UpdateHAuthorizationTypeCommand}"
+                                          CommandParameter="Bearer"
+                                          Header="Bearer"
+                                 />
+                                <MenuItem Foreground="#000"  
+                                          Command="{Binding UpdateHAuthorizationTypeCommand}"
+                                          CommandParameter="BasicAuth"         
+                                          Header="BasicAuth"
+                               />
+                                <MenuItem Foreground="#000" 
+                                          Command="{Binding UpdateHAuthorizationTypeCommand}"
+                                          CommandParameter="ApiKey"
+                                          Header="ApiKey"
+                               />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                </StackPanel>
             </Grid>
-            <Grid Grid.Row="1" Height="50"  Background="Green" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
 
+            <Grid Grid.Row="1" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type TextBox}" >
+                        <Setter Property="Padding" Value="5"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                        <Setter Property="Background" Value="#A5A5A5"/>
+                        <Setter Property="BorderBrush" Value="White"/>
+                    </Style>
+                </Grid.Resources>
+                <StackPanel HorizontalAlignment="Left">
+                    <WrapPanel Name="HeadersListWrapper" Orientation="Vertical">
+                        <WrapPanel.Children>
+                            <StackPanel Orientation="Horizontal" Width="330">
+                                <TextBox Text="Name.." Width="150"></TextBox>
+                                <TextBox Text="Value.." Width="150"></TextBox>
+                            </StackPanel>
+                        </WrapPanel.Children>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" >
+                        <Button Background="Black" Width="70" Margin="10"  Click="AddNewHeadersControl" FontSize="14" Style="{StaticResource OptionsButton}" Content="Add New"></Button>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
             <Grid Grid.Row="1" Height="50"  Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
 
-            </Grid>-->
+            </Grid>
             <Button  Command="{Binding SendRequestCommand}" Width="150" Content="Send" Style="{StaticResource SendButton}"></Button>
         </StackPanel>
         <Grid Grid.Row="3">
@@ -142,5 +207,5 @@
             <TextBox TextWrapping="WrapWithOverflow" Grid.Row="1" Text="{Binding ResponseContent}" ></TextBox>
         </Grid>
     </Grid>
-    
+
 </UserControl>
