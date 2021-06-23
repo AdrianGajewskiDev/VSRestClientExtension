@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using VSRESTClient.Core.Utils;
 using VSRESTClient.UI.Builders;
+using VSRESTClient.UI.Utils;
 using VSRESTClient.UI.ViewModels;
 
 namespace VSRESTClient.UI.Windows.Main
@@ -92,7 +93,11 @@ namespace VSRESTClient.UI.Windows.Main
             {
                 var textboxes = panel.Children.OfType<TextBox>().ToArray();
 
-                @params.Add(new HttpParam(textboxes[0].Text, textboxes[1].Text));
+                if (textboxes[0].Text != StaticStrings.DefaultName && !string.IsNullOrEmpty(textboxes[0].Text) && textboxes[1].Text != StaticStrings.DefaultValue && !string.IsNullOrEmpty(textboxes[1].Text))
+                {
+                    
+                    @params.Add(new HttpParam(textboxes[0].Text, textboxes[1].Text));
+                }
             }
 
             viewModel.FetchHttpParams(@params);
@@ -155,7 +160,10 @@ namespace VSRESTClient.UI.Windows.Main
             {
                 var textboxes = panel.Children.OfType<TextBox>().ToArray();
 
-                @params.Add(new HttpHeader(textboxes[0].Text, textboxes[1].Text));
+                if (textboxes[0].Text != StaticStrings.DefaultName && !string.IsNullOrEmpty(textboxes[0].Text) && textboxes[1].Text != StaticStrings.DefaultValue && !string.IsNullOrEmpty(textboxes[1].Text))
+                {
+                    @params.Add(new HttpHeader(textboxes[0].Text, textboxes[1].Text));
+                }
             }
 
             viewModel.FetchHttpHeaders(@params);

@@ -18,11 +18,14 @@ namespace VSRESTClient.UI.Builders
 
         public UrlBuilder AddQueryParam(HttpParam param)
         {
-            if (!this._baseUrl.Contains("?"))
+            if (!_source.ToString().Contains(param.Name))
             {
-                _source.Append("?");
+                if (!_baseUrl.Contains("?"))
+                {
+                    _source.Append("?");
+                }
+                _source.Append($"{param.Name}={param.Value}&");
             }
-            _source.Append($"{param.Name}={param.Value}&");
 
             return this;
         }

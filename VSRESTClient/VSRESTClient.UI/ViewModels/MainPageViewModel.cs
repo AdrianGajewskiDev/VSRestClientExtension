@@ -22,8 +22,9 @@ namespace VSRESTClient.UI.ViewModels
         #region Commands
         public ICommand UpdateHttpMethodCommand { get; set; }
         public ICommand UpdateHAuthorizationTypeCommand { get; set; }
+        public ICommand UpdateAuthorizationAttachMethodCommand { get; set; }
         public ICommand UrlFocusCommand { get; set; }
-        public ICommand UrlLostFocusCommand { get; set; } 
+        public ICommand UrlLostFocusCommand { get; set; }
         public ICommand SwitchOptionsTab { get; set; }
         public ICommand SendRequestCommand { get; set; }
         #endregion
@@ -50,24 +51,85 @@ namespace VSRESTClient.UI.ViewModels
         {
             get
             {
-                return _optionsModel.AuthorizationType.ToString();
+                return _authorizationModel.AuthorizationType.ToString();
             }
             set
             {
                 var type = ParseEnumFromString<AuthorizationType>(value);
 
-                _optionsModel.SetCurrentAuthorizationType(type);
+                _authorizationModel.SetCurrentAuthorizationType(type);
+                
+                ResetHeaders();
 
                 OnPropertyChanged(nameof(CurrentAuthorizationType));
             }
         }
-        public string CurrentOptionsTabOpened 
+
+        private void ResetHeaders()
         {
-            get 
+            switch (CurrentAuthorizationType)
+            {
+                case "Bearer":
+                    {
+                        var authorizationHeader = _optionsModel.Headers.FirstOrDefault(x => x.Name == "Authorization");
+                        _optionsModel.Headers.Clear();
+
+                        if (authorizationHeader != null)
+                            _optionsModel.Headers.Add(authorizationHeader);
+                    }
+                    break;
+                case "BasicAuth": 
+                    {
+                        var username = _optionsModel.Headers.FirstOrDefault(x => x.Name == "Username");
+                        var password = _optionsModel.Headers.FirstOrDefault(x => x.Name == "Password");
+                        _optionsModel.Headers.Clear();
+
+                        if (username != null)
+                            _optionsModel.Headers.Add(username);
+
+                        if (password != null)
+                            _optionsModel.Headers.Add(password);
+                    }
+                    break;
+                case "ApiKey":
+                    {
+                        var name = _optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamName);
+                        var value = _optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamValue);
+                        _optionsModel.Headers.Clear();
+
+                        if (name != null)
+                            _optionsModel.Headers.Add(name);
+
+                        if (value != null)
+                            _optionsModel.Headers.Add(value);
+                    }
+                    break;
+            }
+          
+        }
+
+        public string CurrentAuthorizationAttachMethod
+        {
+            get
+            {
+                return _authorizationModel.AuthorizationAttachMethod.ToString();
+            }
+            set
+            {
+                var type = ParseEnumFromString<AuthorizationAttachMethod>(value);
+
+                _authorizationModel.SetAuthorizationAttachMethod(type);
+
+                OnPropertyChanged(nameof(CurrentAuthorizationAttachMethod));
+            }
+        }
+        public string CurrentOptionsTabOpened
+        {
+            get
             {
                 return _searchbarModel.CurrentOptionsTab.ToString();
             }
-            set 
+            set
             {
                 var convertedValue = ParseEnumFromString<OptionsPage>(value);
 
@@ -89,7 +151,7 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(Url));
             }
         }
-        public string ResponseContent 
+        public string ResponseContent
         {
             get => _responseModel.Content;
             set
@@ -98,7 +160,7 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(ResponseContent));
             }
         }
-        public string ResponseStatusCode 
+        public string ResponseStatusCode
         {
             get => $"Status Code: {ResponseStatusCodeNumber} {_responseModel.StatusCode}";
             set
@@ -108,7 +170,7 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(ResponseStatusCode));
             }
         }
-        public string ResponseContentType 
+        public string ResponseContentType
         {
             get => $"Content Type: {_responseModel.ContentType ?? ""}";
 
@@ -116,6 +178,53 @@ namespace VSRESTClient.UI.ViewModels
             {
                 _responseModel.ContentType = value;
                 OnPropertyChanged(nameof(ResponseContentType));
+            }
+        }
+
+        public string CurrentBasicAuthorizationHeaderOrParamName
+        {
+            get => _authorizationModel.BasicAuthorizationHeaderOrParamName;
+            set
+            {
+                _authorizationModel.BasicAuthorizationHeaderOrParamName = value;
+                OnPropertyChanged(nameof(CurrentBasicAuthorizationHeaderOrParamName));
+            }
+        }
+        public string CurrentBasicAuthorizationHeaderOrParamValue
+        {
+            get => _authorizationModel.BasicAuthorizationHeaderOrParamValue;
+            set
+            {
+                _authorizationModel.BasicAuthorizationHeaderOrParamValue = value;
+                OnPropertyChanged(nameof(CurrentBasicAuthorizationHeaderOrParamValue));
+            }
+        }
+        public string CurrentApiKeyAuthorizationHeaderOrParamName
+        {
+            get => _authorizationModel.ApiKeyAuthorizationHeaderOrParamName;
+            set
+            {
+                _authorizationModel.ApiKeyAuthorizationHeaderOrParamName = value;
+                OnPropertyChanged(nameof(CurrentApiKeyAuthorizationHeaderOrParamName));
+            }
+        }
+        public string CurrentApiKeyAuthorizationHeaderOrParamValue
+        {
+            get => _authorizationModel.ApiKeyAuthorizationHeaderOrParamValue;
+            set
+            {
+                _authorizationModel.ApiKeyAuthorizationHeaderOrParamValue = value;
+                OnPropertyChanged(nameof(CurrentApiKeyAuthorizationHeaderOrParamValue));
+            }
+        }
+
+        public string JWTToken
+        {
+            get => _authorizationModel.Token;
+            set
+            {
+                _authorizationModel.Token = value;
+                OnPropertyChanged(nameof(JWTToken));
             }
         }
         public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
@@ -133,6 +242,7 @@ namespace VSRESTClient.UI.ViewModels
         private SearchbarModel _searchbarModel;
         private OptionsModel _optionsModel;
         private ResponseModel _responseModel;
+        private AuthorizationModel _authorizationModel;
         private readonly Core.Http.WebClient _webClient;
         #endregion
 
@@ -141,6 +251,7 @@ namespace VSRESTClient.UI.ViewModels
         {
             UpdateHttpMethodCommand = new ParameterizedCommand(UpdateHttpMethodCallback);
             UpdateHAuthorizationTypeCommand = new ParameterizedCommand(UpdateAuthorizationTypeCallback);
+            UpdateAuthorizationAttachMethodCommand = new ParameterizedCommand(UpdateAuthorizationAttachMethodCallback);
             SwitchOptionsTab = new ParameterizedCommand(SwitchOptionsTabCallback);
             UrlFocusCommand = new RelayCommand(UrlFocusCallback);
             UrlLostFocusCommand = new RelayCommand(UrlLostFocusCallback);
@@ -151,6 +262,7 @@ namespace VSRESTClient.UI.ViewModels
             _searchbarModel = new SearchbarModel();
             _optionsModel = new OptionsModel();
             _responseModel = new ResponseModel();
+            _authorizationModel = new AuthorizationModel();
             _webClient = new Core.Http.WebClient();
 
             CurrentHttpMethod = _searchbarModel.CurrentHttpMethod;
@@ -162,20 +274,32 @@ namespace VSRESTClient.UI.ViewModels
         public void OnPropertyChanged(string name)
         {
             PropertyChanged(this, new PropertyChangedEventArgs(name));
-        } 
+        }
         public void AddParam(string name, string value)
         {
             _optionsModel.HttpParams.Add(new HttpParam(name, value));
         }
         public void FetchHttpParams(List<HttpParam> @params)
         {
-            _optionsModel.HttpParams = @params;
+            foreach (var param in @params)
+            {
+                if (!_optionsModel.HttpParams.Any(x => x.Name == param.Name))
+                {
+                    _optionsModel.HttpParams.Add(param);
+                }
+            }
         }
         public void FetchHttpHeaders(List<HttpHeader> @params)
         {
-            _optionsModel.Headers = @params;
+            foreach (var param in @params)
+            {
+                if (!_optionsModel.Headers.Any(x => x.Name == param.Name))
+                {
+                    _optionsModel.Headers.Add(param);
+                }
+            }
         }
-        public void RemoveParam(int index) 
+        public void RemoveParam(int index)
         {
             _optionsModel.HttpParams.RemoveAt(index);
         }
@@ -191,13 +315,15 @@ namespace VSRESTClient.UI.ViewModels
         {
             CurrentHttpMethod = httpMethod as string;
         }
-
         private void UpdateAuthorizationTypeCallback(object parameter)
         {
             CurrentAuthorizationType = parameter as string;
         }
-
-        public void SwitchOptionsTabCallback(object value)
+        private void UpdateAuthorizationAttachMethodCallback(object parameter)
+        {
+            CurrentAuthorizationAttachMethod = parameter as string;
+        }
+        private void SwitchOptionsTabCallback(object value)
         {
             CurrentOptionsTabOpened = value as string;
         }
@@ -234,6 +360,66 @@ namespace VSRESTClient.UI.ViewModels
                 }
             }
 
+            switch (_authorizationModel.AuthorizationType)
+            {
+                case AuthorizationType.Bearer:
+                    if (!_optionsModel.Headers.Any(x => x.Name == "Authorization"))
+                        _optionsModel.Headers.Add(new HttpHeader("Authorization", $"Bearer {JWTToken}"));
+                    break;
+                case AuthorizationType.ApiKey:
+                    {
+                            switch (CurrentAuthorizationAttachMethod)
+                            {
+                                case "Headers":
+                                    {
+                                        var indexOfApiKeyName = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamName));
+
+                                        if(indexOfApiKeyName >= 0)
+                                            _optionsModel.Headers[indexOfApiKeyName] = new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue);
+                                        else
+                                            _optionsModel.Headers.Add(new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                    }
+                                    break;
+                                case "QueryParams":
+                                    {
+                                        builder.AddQueryParam(new HttpParam(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                    }
+                                    break;
+                            }
+                    }
+                    break;
+                case AuthorizationType.BasicAuth:
+
+                    switch (CurrentAuthorizationAttachMethod)
+                    {
+                        case "Headers":
+                            {
+                                var indexOfUsername = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == "Username"));
+                                var indexOfPassword = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == "Password"));
+
+                                if (indexOfUsername >= 0)
+                                    _optionsModel.Headers[indexOfUsername] = new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName);
+                                else
+                                    _optionsModel.Headers.Add(new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName));
+
+
+                                if(indexOfPassword >= 0)
+                                    _optionsModel.Headers[indexOfPassword] = new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue);
+
+                                else
+                                    _optionsModel.Headers.Add(new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue));
+                            }
+                            break;
+                        case "QueryParams":
+                            {
+                                builder.AddQueryParam(new HttpParam("Username", CurrentBasicAuthorizationHeaderOrParamName));
+                                builder.AddQueryParam(new HttpParam("Password", CurrentBasicAuthorizationHeaderOrParamValue));
+                            }
+                            break;
+                    }
+                    break;
+            }
+
             var url = builder.Build();
 
             var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod));
@@ -244,6 +430,13 @@ namespace VSRESTClient.UI.ViewModels
             ResponseStatusCode = response.StatusCode.ToString();
             ResponseContentType = response.ContentType;
 
+            ResetHeaders();
+            ResetParams();
+        }
+
+        private void ResetParams()
+        {
+            _optionsModel.HttpParams.Clear();
         }
 
         #endregion
@@ -254,7 +447,7 @@ namespace VSRESTClient.UI.ViewModels
             Enum.TryParse<T>(@string, out var result);
 
             return result;
-        } 
+        }
         #endregion
 
     }

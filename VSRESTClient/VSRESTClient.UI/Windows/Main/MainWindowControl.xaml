@@ -91,6 +91,8 @@
                 <Separator Width="400" Background="#EFEA6D"/>
             </StackPanel>
 
+            
+            <!--Params-->
             <Grid Grid.Row="1"  Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Params'}"
                   HorizontalAlignment="Left" VerticalAlignment="Top" Name="paramsParent">
                 <Grid.Resources>
@@ -117,7 +119,8 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="1" Height="150" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
+            <!--Authorization-->
+            <Grid Grid.Row="1" Height="160" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Authorization'}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.2*"/>
                     <RowDefinition Height="1*"/>
@@ -163,8 +166,82 @@
                         </Button.ContextMenu>
                     </Button>
                 </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding CurrentAuthorizationType, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Bearer'}" >
+                    <Label Foreground="#fff" Margin="10">Token: </Label>
+                    <TextBox Margin="10" Text="{Binding JWTToken}" TextWrapping="Wrap" Background="#A5A5A5" VerticalAlignment="Top" Width="190" Height="100"></TextBox>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal"  Visibility="{Binding CurrentAuthorizationType, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='NoAuth'}" >
+                    <Label Foreground="#fff" Margin="10">No authorization for this request</Label>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical"  Visibility="{Binding CurrentAuthorizationType, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='BasicAuth'}" >
+                    <Label HorizontalAlignment="Left">Username</Label>
+                    <TextBox HorizontalAlignment="Left" Margin="5" Text="{Binding CurrentBasicAuthorizationHeaderOrParamName}" Background="#A5A5A5" Width="150"></TextBox>
+                    <Label HorizontalAlignment="Left">Password</Label>
+                    <TextBox HorizontalAlignment="Left" Margin="5" Text="{Binding CurrentBasicAuthorizationHeaderOrParamValue}" Background="#A5A5A5" Width="150"></TextBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label Foreground="#fff">Attach to </Label>
+                        <Button Height="20" 
+                        Style="{StaticResource SendButton}"
+                        Width="100" Click="OpenContextMenu"
+                        Background="#000" >
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="13"  Foreground="#fff" Text="{Binding CurrentAuthorizationAttachMethod}"/>
+                                    <Path  Margin="4" VerticalAlignment="Center" Width="10" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                                </StackPanel>
+                            </Button.Content>
+                            <Button.ContextMenu>
+                                <ContextMenu >
+                                    <MenuItem Foreground="#000"  
+                                          Command="{Binding UpdateAuthorizationAttachMethodCommand}"
+                                          CommandParameter="Headers"
+                                          Header="Header" />
+                                    <MenuItem Foreground="#000" 
+                                          Command="{Binding UpdateAuthorizationAttachMethodCommand}"
+                                          CommandParameter="QueryParams"
+                                          Header="Query Params"
+                                 />
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical"  Visibility="{Binding CurrentAuthorizationType, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='ApiKey'}" >
+                    <Label HorizontalAlignment="Left">Name</Label>
+                    <TextBox HorizontalAlignment="Left" Margin="2" Text="{Binding CurrentApiKeyAuthorizationHeaderOrParamName}" Background="#A5A5A5" Width="150"></TextBox>
+                    <Label HorizontalAlignment="Left">Value</Label>
+                    <TextBox HorizontalAlignment="Left" Margin="2" Text="{Binding CurrentApiKeyAuthorizationHeaderOrParamValue}" Background="#A5A5A5" Width="150"></TextBox>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Label Foreground="#fff">Attach to</Label>
+                        <Button Height="20" 
+                        Style="{StaticResource SendButton}"
+                        Width="100" Click="OpenContextMenu"
+                        Background="#000" >
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="13"  Foreground="#fff" Text="{Binding CurrentAuthorizationAttachMethod}"/>
+                                    <Path  Margin="4" VerticalAlignment="Center" Width="10" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+                                </StackPanel>
+                            </Button.Content>
+                            <Button.ContextMenu>
+                                <ContextMenu >
+                                    <MenuItem Foreground="#000"  
+                                          Command="{Binding UpdateAuthorizationAttachMethodCommand}"
+                                          CommandParameter="Headers"
+                                          Header="Header" />
+                                    <MenuItem Foreground="#000" 
+                                          Command="{Binding UpdateAuthorizationAttachMethodCommand}"
+                                          CommandParameter="QueryParams"
+                                          Header="Query Params"
+                                 />
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
 
+            <!--Headers-->
             <Grid Grid.Row="1" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Headers'}">
                 <Grid.Resources>
                     <Style TargetType="{x:Type TextBox}" >
@@ -188,10 +265,14 @@
                     </StackPanel>
                 </StackPanel>
             </Grid>
+
+            <!--Body-->
             <Grid Grid.Row="1" Height="50"  Background="Azure" Visibility="{Binding CurrentOptionsTabOpened, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Body'}">
 
             </Grid>
             <Button  Command="{Binding SendRequestCommand}" Width="150" Content="Send" Style="{StaticResource SendButton}"></Button>
+        
+        <!--Response Content-->
         </StackPanel>
         <Grid Grid.Row="3">
             <Grid.RowDefinitions>
