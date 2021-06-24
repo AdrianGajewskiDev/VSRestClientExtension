@@ -45,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AttachedProperties\BrowserBehavior.cs" />
     <Compile Include="Builders\IControlBuilder.cs" />
     <Compile Include="Builders\StackPanelBuilder.cs" />
     <Compile Include="Builders\UrlBuilder.cs" />

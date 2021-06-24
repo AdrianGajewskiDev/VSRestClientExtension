@@ -200,6 +200,43 @@ namespace VSRESTClient.UI.ViewModels
             {
                 _responseModel.ContentType = value;
                 OnPropertyChanged(nameof(ResponseContentType));
+                OnPropertyChanged(nameof(TextResponse));
+                OnPropertyChanged(nameof(ImageResponse));
+                OnPropertyChanged(nameof(HtmlResponse));
+            }
+        }
+        public bool TextResponse 
+        {
+            get 
+            {
+                if (_responseModel.ContentType != null)
+                    return (_responseModel.ContentType.Contains("text") || _responseModel.ContentType.Contains("json")) && !_responseModel.ContentType.Contains("html");
+                else
+                    return false;
+            }
+            set
+            {
+
+            }
+        }
+        public bool ImageResponse 
+        {
+            get
+            {
+                if (_responseModel.ContentType != null)
+                    return _responseModel.ContentType.Contains("image");
+                else
+                    return false;
+            }
+        }
+        public bool HtmlResponse 
+        {
+            get
+            {
+                if (_responseModel.ContentType != null)
+                    return _responseModel.ContentType == "text/html";
+                else
+                    return false;
             }
         }
         public string CurrentBasicAuthorizationHeaderOrParamName
