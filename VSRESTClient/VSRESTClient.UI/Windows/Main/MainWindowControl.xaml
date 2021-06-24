@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:converters="clr-namespace:VSRESTClient.UI.Converters"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
              mc:Ignorable="d"
              Name="MyToolWindow" 
              d:DesignHeight="600"
@@ -12,6 +13,7 @@
     <UserControl.Resources>
         <ResourceDictionary Source="../../Styles/Buttons.xaml"/>
     </UserControl.Resources>
+
     <Grid Background="#4F4B4B">
         <Grid.Resources>
             <Style TargetType="{x:Type Button}" >
@@ -334,6 +336,16 @@
                  Grid.Row="1" local:BrowserBehavior.Html="{Binding ResponseContent}"></WebBrowser>
             <Image  Visibility="{Binding ImageResponse, Converter={StaticResource BoolToVis}}"
                  Grid.Row="1" Source="{Binding Url}" ></Image>
+        </Grid>
+
+
+        <Grid Grid.RowSpan="4" Background="Black" Opacity="0.8" Visibility="{Binding ShowLoadingSpinner, Converter={StaticResource BoolToVis}}">
+            <Label HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Foreground="White" 
+                   Content="Sending request..." 
+                   FontSize="20"
+                   />
         </Grid>
     </Grid>
 

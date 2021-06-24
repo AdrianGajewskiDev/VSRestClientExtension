@@ -284,6 +284,8 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(JWTToken));
             }
         }
+        private bool _ShowLoadingSpinner = false;
+        public bool ShowLoadingSpinner { get => _ShowLoadingSpinner; set { _ShowLoadingSpinner = value; OnPropertyChanged(nameof(ShowLoadingSpinner)); } }
         public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
         public List<Action> PrerequestActions = new List<Action>();
         #endregion
@@ -401,6 +403,7 @@ namespace VSRESTClient.UI.ViewModels
         }
         private async Task SendRequestCallbackAsync()
         {
+            ShowLoadingSpinner = true;
             if (string.IsNullOrEmpty(Url) || Url.Equals(StaticStrings.DefaultUrl))
                 return;
 
@@ -496,7 +499,7 @@ namespace VSRESTClient.UI.ViewModels
             ResponseContent = formatedContent;
             ResponseStatusCode = response.StatusCode.ToString();
             ResponseContentType = response.ContentType;
-
+            ShowLoadingSpinner = false;
             ResetHeaders();
             ResetParams();
         }
