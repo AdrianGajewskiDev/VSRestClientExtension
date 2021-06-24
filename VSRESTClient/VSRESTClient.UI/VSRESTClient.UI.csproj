@@ -54,6 +54,7 @@
     <Compile Include="Converters\StringToColorConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Models\AuthorizationModel.cs" />
+    <Compile Include="Models\BodyContentModel.cs" />
     <Compile Include="Models\OptionsModel.cs" />
     <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Models\SearchbarModel.cs" />

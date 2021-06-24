@@ -23,6 +23,7 @@ namespace VSRESTClient.UI.ViewModels
         public ICommand UpdateHttpMethodCommand { get; set; }
         public ICommand UpdateHAuthorizationTypeCommand { get; set; }
         public ICommand UpdateAuthorizationAttachMethodCommand { get; set; }
+        public ICommand UpdateBodyContentTypeCommand { get; set; }
         public ICommand UrlFocusCommand { get; set; }
         public ICommand UrlLostFocusCommand { get; set; }
         public ICommand SwitchOptionsTab { get; set; }
@@ -30,7 +31,26 @@ namespace VSRESTClient.UI.ViewModels
         #endregion
 
         #region Public Properties
+        public string CurrentBodyContentType 
+        {
+            get => _bodyContentModel.BodyContentType;
+            set 
+            {
+                _bodyContentModel.BodyContentType = value;
 
+                OnPropertyChanged(nameof(CurrentBodyContentType));
+            }
+        }
+        public string CurrentBodyContent
+        {
+            get => _bodyContentModel.Content;
+            set
+            {
+                _bodyContentModel.Content = value;
+
+                OnPropertyChanged(nameof(CurrentBodyContent));
+            }
+        }
         public string CurrentHttpMethod
         {
             get
@@ -46,7 +66,6 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(CurrentHttpMethod));
             }
         }
-
         public string CurrentAuthorizationType
         {
             get
@@ -64,7 +83,6 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(CurrentAuthorizationType));
             }
         }
-
         private void ResetHeaders()
         {
             switch (CurrentAuthorizationType)
@@ -104,10 +122,14 @@ namespace VSRESTClient.UI.ViewModels
                             _optionsModel.Headers.Add(value);
                     }
                     break;
+                case "NoAuth":
+                    {
+                        _optionsModel.Headers.Clear();
+                    }
+                    break;
             }
           
         }
-
         public string CurrentAuthorizationAttachMethod
         {
             get
@@ -180,7 +202,6 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(ResponseContentType));
             }
         }
-
         public string CurrentBasicAuthorizationHeaderOrParamName
         {
             get => _authorizationModel.BasicAuthorizationHeaderOrParamName;
@@ -217,7 +238,6 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(CurrentApiKeyAuthorizationHeaderOrParamValue));
             }
         }
-
         public string JWTToken
         {
             get => _authorizationModel.Token;
@@ -228,9 +248,7 @@ namespace VSRESTClient.UI.ViewModels
             }
         }
         public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
-
         public List<Action> PrerequestActions = new List<Action>();
-
         #endregion
 
         #region Events
@@ -243,6 +261,7 @@ namespace VSRESTClient.UI.ViewModels
         private OptionsModel _optionsModel;
         private ResponseModel _responseModel;
         private AuthorizationModel _authorizationModel;
+        private BodyContentModel _bodyContentModel;
         private readonly Core.Http.WebClient _webClient;
         #endregion
 
@@ -252,6 +271,7 @@ namespace VSRESTClient.UI.ViewModels
             UpdateHttpMethodCommand = new ParameterizedCommand(UpdateHttpMethodCallback);
             UpdateHAuthorizationTypeCommand = new ParameterizedCommand(UpdateAuthorizationTypeCallback);
             UpdateAuthorizationAttachMethodCommand = new ParameterizedCommand(UpdateAuthorizationAttachMethodCallback);
+            UpdateBodyContentTypeCommand = new ParameterizedCommand(UpdateBodyContentTypeCallback);
             SwitchOptionsTab = new ParameterizedCommand(SwitchOptionsTabCallback);
             UrlFocusCommand = new RelayCommand(UrlFocusCallback);
             UrlLostFocusCommand = new RelayCommand(UrlLostFocusCallback);
@@ -264,6 +284,7 @@ namespace VSRESTClient.UI.ViewModels
             _responseModel = new ResponseModel();
             _authorizationModel = new AuthorizationModel();
             _webClient = new Core.Http.WebClient();
+            _bodyContentModel = new BodyContentModel();
 
             CurrentHttpMethod = _searchbarModel.CurrentHttpMethod;
             Url = _searchbarModel.RequestUrl;
@@ -322,6 +343,10 @@ namespace VSRESTClient.UI.ViewModels
         private void UpdateAuthorizationAttachMethodCallback(object parameter)
         {
             CurrentAuthorizationAttachMethod = parameter as string;
+        }
+        private void UpdateBodyContentTypeCallback(object parameter)
+        {
+            CurrentBodyContentType = parameter as string;
         }
         private void SwitchOptionsTabCallback(object value)
         {
@@ -418,11 +443,16 @@ namespace VSRESTClient.UI.ViewModels
                             break;
                     }
                     break;
+
+                case AuthorizationType.NoAuth: 
+                    {
+                        ResetHeaders();
+                    }break;
             }
 
             var url = builder.Build();
 
-            var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod));
+            var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod, CurrentBodyContent, CurrentBodyContentType));
 
             var formatedContent = Beautifier.Instance.Format(response.Content, response.ContentType);
 
@@ -433,7 +463,6 @@ namespace VSRESTClient.UI.ViewModels
             ResetHeaders();
             ResetParams();
         }
-
         private void ResetParams()
         {
             _optionsModel.HttpParams.Clear();

@@ -4,7 +4,6 @@ using AngleSharp.Html.Parser;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
-using System.Net.Mime;
 
 namespace VSRESTClient.UI.Utils
 {

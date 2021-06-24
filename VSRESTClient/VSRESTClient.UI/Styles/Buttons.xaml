@@ -4,7 +4,6 @@
     <Style TargetType="{x:Type Button}" x:Key="SendButton">
         <Setter Property="Background" Value="#EFEA6D"></Setter>
         <Setter Property="FontSize" Value="20"></Setter>
-        <Setter Property="Margin" Value="10 0"></Setter>
         <Setter Property="Height" Value="30"></Setter>
         <Setter Property="Foreground" Value="#000"></Setter>
         <Setter Property="Template">
@@ -12,7 +11,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border Name="border" 
                         BorderBrush="DarkGray" 
-                        CornerRadius="5" 
+                        CornerRadius="0 5 5 0" 
                         Background="{TemplateBinding Background}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
