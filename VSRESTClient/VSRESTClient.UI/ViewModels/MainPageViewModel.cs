@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,13 +29,15 @@ namespace VSRESTClient.UI.ViewModels
         public ICommand UrlLostFocusCommand { get; set; }
         public ICommand SwitchOptionsTab { get; set; }
         public ICommand SendRequestCommand { get; set; }
+
+        public ICommand CancelRequestCommand { get; set; }
         #endregion
 
         #region Public Properties
-        public string CurrentBodyContentType 
+        public string CurrentBodyContentType
         {
             get => _bodyContentModel.BodyContentType;
-            set 
+            set
             {
                 _bodyContentModel.BodyContentType = value;
 
@@ -77,7 +80,7 @@ namespace VSRESTClient.UI.ViewModels
                 var type = ParseEnumFromString<AuthorizationType>(value);
 
                 _authorizationModel.SetCurrentAuthorizationType(type);
-                
+
                 ResetHeaders();
 
                 OnPropertyChanged(nameof(CurrentAuthorizationType));
@@ -96,7 +99,7 @@ namespace VSRESTClient.UI.ViewModels
                             _optionsModel.Headers.Add(authorizationHeader);
                     }
                     break;
-                case "BasicAuth": 
+                case "BasicAuth":
                     {
                         var username = _optionsModel.Headers.FirstOrDefault(x => x.Name == "Username");
                         var password = _optionsModel.Headers.FirstOrDefault(x => x.Name == "Password");
@@ -128,7 +131,7 @@ namespace VSRESTClient.UI.ViewModels
                     }
                     break;
             }
-          
+
         }
         public string CurrentAuthorizationAttachMethod
         {
@@ -205,9 +208,9 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(HtmlResponse));
             }
         }
-        public bool TextResponse 
+        public bool TextResponse
         {
-            get 
+            get
             {
                 if (_responseModel.ContentType != null)
                     return (_responseModel.ContentType.Contains("text") || _responseModel.ContentType.Contains("json")) && !_responseModel.ContentType.Contains("html");
@@ -219,7 +222,7 @@ namespace VSRESTClient.UI.ViewModels
 
             }
         }
-        public bool ImageResponse 
+        public bool ImageResponse
         {
             get
             {
@@ -229,7 +232,7 @@ namespace VSRESTClient.UI.ViewModels
                     return false;
             }
         }
-        public bool HtmlResponse 
+        public bool HtmlResponse
         {
             get
             {
@@ -288,6 +291,7 @@ namespace VSRESTClient.UI.ViewModels
         public bool ShowLoadingSpinner { get => _ShowLoadingSpinner; set { _ShowLoadingSpinner = value; OnPropertyChanged(nameof(ShowLoadingSpinner)); } }
         public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
         public List<Action> PrerequestActions = new List<Action>();
+        public CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
         #endregion
 
         #region Events
@@ -314,6 +318,7 @@ namespace VSRESTClient.UI.ViewModels
             SwitchOptionsTab = new ParameterizedCommand(SwitchOptionsTabCallback);
             UrlFocusCommand = new RelayCommand(UrlFocusCallback);
             UrlLostFocusCommand = new RelayCommand(UrlLostFocusCallback);
+            CancelRequestCommand = new RelayCommand(CancelRequestCallback);
 #pragma warning disable VSTHRD101 // Avoid unsupported async delegates
             SendRequestCommand = new RelayCommand(async () => await SendRequestCallbackAsync());
 #pragma warning restore VSTHRD101 // Avoid unsupported async delegates
@@ -401,8 +406,13 @@ namespace VSRESTClient.UI.ViewModels
             if (Url.Equals(string.Empty))
                 Url = StaticStrings.DefaultUrl;
         }
+        private void CancelRequestCallback()
+        {
+            CancellationTokenSource.Cancel();
+        }
         private async Task SendRequestCallbackAsync()
         {
+            CancellationTokenSource = new CancellationTokenSource();
             ShowLoadingSpinner = true;
             if (string.IsNullOrEmpty(Url) || Url.Equals(StaticStrings.DefaultUrl))
                 return;
@@ -433,24 +443,24 @@ namespace VSRESTClient.UI.ViewModels
                     break;
                 case AuthorizationType.ApiKey:
                     {
-                            switch (CurrentAuthorizationAttachMethod)
-                            {
-                                case "Headers":
-                                    {
-                                        var indexOfApiKeyName = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamName));
+                        switch (CurrentAuthorizationAttachMethod)
+                        {
+                            case "Headers":
+                                {
+                                    var indexOfApiKeyName = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamName));
 
-                                        if(indexOfApiKeyName >= 0)
-                                            _optionsModel.Headers[indexOfApiKeyName] = new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue);
-                                        else
-                                            _optionsModel.Headers.Add(new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
-                                    }
-                                    break;
-                                case "QueryParams":
-                                    {
-                                        builder.AddQueryParam(new HttpParam(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
-                                    }
-                                    break;
-                            }
+                                    if (indexOfApiKeyName >= 0)
+                                        _optionsModel.Headers[indexOfApiKeyName] = new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue);
+                                    else
+                                        _optionsModel.Headers.Add(new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                }
+                                break;
+                            case "QueryParams":
+                                {
+                                    builder.AddQueryParam(new HttpParam(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                }
+                                break;
+                        }
                     }
                     break;
                 case AuthorizationType.BasicAuth:
@@ -468,7 +478,7 @@ namespace VSRESTClient.UI.ViewModels
                                     _optionsModel.Headers.Add(new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName));
 
 
-                                if(indexOfPassword >= 0)
+                                if (indexOfPassword >= 0)
                                     _optionsModel.Headers[indexOfPassword] = new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue);
 
                                 else
@@ -484,15 +494,16 @@ namespace VSRESTClient.UI.ViewModels
                     }
                     break;
 
-                case AuthorizationType.NoAuth: 
+                case AuthorizationType.NoAuth:
                     {
                         ResetHeaders();
-                    }break;
+                    }
+                    break;
             }
 
             var url = builder.Build();
 
-            var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod, CurrentBodyContent, CurrentBodyContentType));
+            var response = await _webClient.SendRequestAsync(new HttpRequest(url, _optionsModel.HttpParams, _optionsModel.Headers, _searchbarModel.HttpMethod, CurrentBodyContent, CurrentBodyContentType), CancellationTokenSource.Token);
 
             var formatedContent = Beautifier.Instance.Format(response.Content, response.ContentType);
 
@@ -502,6 +513,8 @@ namespace VSRESTClient.UI.ViewModels
             ShowLoadingSpinner = false;
             ResetHeaders();
             ResetParams();
+
+
         }
         private void ResetParams()
         {

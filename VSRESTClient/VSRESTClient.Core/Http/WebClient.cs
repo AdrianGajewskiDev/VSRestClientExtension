@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VSRESTClient.Core.Utils;
 
@@ -11,7 +12,7 @@ namespace VSRESTClient.Core.Http
     {
         private HttpClient _httpClient;
 
-        public async Task<HttpResponse> SendRequestAsync(HttpRequest request)
+        public async Task<HttpResponse> SendRequestAsync(HttpRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -38,19 +39,19 @@ namespace VSRESTClient.Core.Http
                     switch (request.HttpMethod)
                     {
                         case SupportedHttpMethods.GET:
-                            responseMessage = await _httpClient.GetAsync(request.BaseUrl);
+                            responseMessage = await _httpClient.GetAsync(request.BaseUrl, cancellationToken);
                             break;
                         case SupportedHttpMethods.POST:
-                            responseMessage = await _httpClient.PostAsync(request.BaseUrl, requestBody);
+                            responseMessage = await _httpClient.PostAsync(request.BaseUrl, requestBody, cancellationToken);
                             break;
                         case SupportedHttpMethods.PUT:
-                            responseMessage = await _httpClient.PutAsync(request.BaseUrl, requestBody);
+                            responseMessage = await _httpClient.PutAsync(request.BaseUrl, requestBody, cancellationToken);
                             break;
                         case SupportedHttpMethods.DELETE:
-                            responseMessage = await _httpClient.DeleteAsync(request.BaseUrl);
+                            responseMessage = await _httpClient.DeleteAsync(request.BaseUrl, cancellationToken);
                             break;
                         default:
-                            responseMessage = await _httpClient.GetAsync(request.BaseUrl);
+                            responseMessage = await _httpClient.GetAsync(request.BaseUrl, cancellationToken);
                             break;
                     }
 

@@ -339,13 +339,17 @@
         </Grid>
 
 
-        <Grid Grid.RowSpan="4" Background="Black" Opacity="0.8" Visibility="{Binding ShowLoadingSpinner, Converter={StaticResource BoolToVis}}">
-            <Label HorizontalAlignment="Center"
+        <Grid Grid.RowSpan="4" Background="Black" Opacity="0.8" Visibility="{Binding ShowLoadingSpinner, Converter={StaticResource BoolToVis}}" >
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Label HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Foreground="White" 
                    Content="Sending request..." 
                    FontSize="20"
                    />
+                <Button Command="{Binding CancelRequestCommand}" Width="80"  Height="50" Style="{StaticResource SendButton}" >Cancel</Button>
+            </StackPanel>
+      
         </Grid>
     </Grid>
 
