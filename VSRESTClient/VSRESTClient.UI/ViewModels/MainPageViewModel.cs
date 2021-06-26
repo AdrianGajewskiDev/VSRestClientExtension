@@ -422,11 +422,14 @@ namespace VSRESTClient.UI.ViewModels
         }
         private async Task SendRequestCallbackAsync()
         {
+            if (string.IsNullOrEmpty(Url) || Url == StaticStrings.DefaultUrl)
+            {
+                MessageBox.Show("Url cannot be empty!!");
+                return;
+            }
 
             CancellationTokenSource = new CancellationTokenSource();
             ShowLoadingSpinner = true;
-            if (string.IsNullOrEmpty(Url) || Url.Equals(StaticStrings.DefaultUrl))
-                return;
 
             if (PrerequestActions.Any())
             {

@@ -117,6 +117,14 @@
     <Content Include="Assets\close.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="preview.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Windows\Main\close.png" />
     <Content Include="Windows\Main\Resources\MainWindowCommand.png" />
     <VSCTCompile Include="Windows\Main\VSRESTClientUIPackage.vsct">
