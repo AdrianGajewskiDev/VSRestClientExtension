@@ -332,8 +332,6 @@
             <Separator VerticalAlignment="Bottom" Grid.Row="0" Width="500" Background="#EFEA6D"/>
             <TextBox  Visibility="{Binding TextResponse, Converter={StaticResource BoolToVis}}"
                 TextWrapping="Wrap" Grid.Row="1" Text="{Binding ResponseContent}" ></TextBox>
-            <Image  Visibility="{Binding ImageResponse, Converter={StaticResource BoolToVis}}"
-                 Grid.Row="1" Name="ImageContainer"  ></Image>
             <WebBrowser Name="WebBrowser"  Visibility="{Binding HtmlResponse, Converter={StaticResource BoolToVis}}"
                  Grid.Row="1" local:BrowserBehavior.Html="{Binding ResponseContent}"></WebBrowser>
         </Grid>

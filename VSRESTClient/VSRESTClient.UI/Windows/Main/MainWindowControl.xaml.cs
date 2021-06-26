@@ -28,7 +28,6 @@ namespace VSRESTClient.UI.Windows.Main
             this.DataContext = viewModel;
             viewModel.AddPreRequestAction(FetchHttpHeaders);
             viewModel.AddPreRequestAction(FetchHttpParams);
-            viewModel.AddPostRequestAction(FetchImageSource);
         }
 
 
@@ -170,11 +169,6 @@ namespace VSRESTClient.UI.Windows.Main
             }
 
             viewModel.FetchHttpHeaders(@params);
-        }
-        private void FetchImageSource()
-        {
-            if(viewModel.ImageResponse)
-                ImageContainer.Source = new BitmapImage(new Uri(viewModel.ImageUrl));
         }
     }
 }

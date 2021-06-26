@@ -205,7 +205,6 @@ namespace VSRESTClient.UI.ViewModels
             {
                 _responseModel.ContentType = value;
                 OnPropertyChanged(nameof(ResponseContentType));
-                OnPropertyChanged(nameof(ImageResponse));
                 OnPropertyChanged(nameof(HtmlResponse));
                 OnPropertyChanged(nameof(TextResponse));
             }
@@ -218,19 +217,6 @@ namespace VSRESTClient.UI.ViewModels
                 {
                     var flag = (_responseModel.ContentType.Contains("text") || _responseModel.ContentType.Contains("json")) && !_responseModel.ContentType.Contains("html");
 
-                    return flag;
-                }
-                else
-                    return false;
-            }
-        }
-        public bool ImageResponse
-        {
-            get
-            {
-                if (_responseModel.ContentType != null)
-                {
-                    var flag = _responseModel.ContentType.Contains("image");
                     return flag;
                 }
                 else
@@ -566,17 +552,6 @@ namespace VSRESTClient.UI.ViewModels
             ResponseContent = formatedContent;
             ResponseStatusCode = response.StatusCode.ToString();
             ShowLoadingSpinner = false;
-
-            if (ImageResponse)
-                ImageUrl = url;
-
-            if (PostRequestActions.Any())
-            {
-                foreach (var action in PostRequestActions)
-                {
-                    action();
-                }
-            }
 
             ResetHeaders();
             ResetParams();
