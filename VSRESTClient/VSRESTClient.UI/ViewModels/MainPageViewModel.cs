@@ -215,9 +215,8 @@ namespace VSRESTClient.UI.ViewModels
             {
                 if (_responseModel.ContentType != null)
                 {
-                    var flag = (_responseModel.ContentType.Contains("text") || _responseModel.ContentType.Contains("json")) && !_responseModel.ContentType.Contains("html");
+                   return !_responseModel.ContentType.Contains("html");
 
-                    return flag;
                 }
                 else
                     return false;
