@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.VisualStudio.Threading;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using VSRESTClient.Core.Http;
@@ -203,9 +205,9 @@ namespace VSRESTClient.UI.ViewModels
             {
                 _responseModel.ContentType = value;
                 OnPropertyChanged(nameof(ResponseContentType));
-                OnPropertyChanged(nameof(TextResponse));
                 OnPropertyChanged(nameof(ImageResponse));
                 OnPropertyChanged(nameof(HtmlResponse));
+                OnPropertyChanged(nameof(TextResponse));
             }
         }
         public bool TextResponse
@@ -213,13 +215,13 @@ namespace VSRESTClient.UI.ViewModels
             get
             {
                 if (_responseModel.ContentType != null)
-                    return (_responseModel.ContentType.Contains("text") || _responseModel.ContentType.Contains("json")) && !_responseModel.ContentType.Contains("html");
+                {
+                    var flag = (_responseModel.ContentType.Contains("text") || _responseModel.ContentType.Contains("json")) && !_responseModel.ContentType.Contains("html");
+
+                    return flag;
+                }
                 else
                     return false;
-            }
-            set
-            {
-
             }
         }
         public bool ImageResponse
@@ -227,21 +229,29 @@ namespace VSRESTClient.UI.ViewModels
             get
             {
                 if (_responseModel.ContentType != null)
-                    return _responseModel.ContentType.Contains("image");
+                {
+                    var flag = _responseModel.ContentType.Contains("image");
+                    return flag;
+                }
                 else
                     return false;
             }
         }
+
         public bool HtmlResponse
         {
             get
             {
                 if (_responseModel.ContentType != null)
-                    return _responseModel.ContentType == "text/html";
+                {
+                    var flag = _responseModel.ContentType.Contains("html");
+                    return flag;
+                }
                 else
                     return false;
             }
         }
+     
         public string CurrentBasicAuthorizationHeaderOrParamName
         {
             get => _authorizationModel.BasicAuthorizationHeaderOrParamName;
@@ -287,10 +297,21 @@ namespace VSRESTClient.UI.ViewModels
                 OnPropertyChanged(nameof(JWTToken));
             }
         }
+        private string _imageUrl = string.Empty;
+        public string ImageUrl
+        {
+            get => _imageUrl;
+            set
+            {
+                _imageUrl = value;
+                OnPropertyChanged(nameof(ImageUrl));
+            }
+        }
         private bool _ShowLoadingSpinner = false;
         public bool ShowLoadingSpinner { get => _ShowLoadingSpinner; set { _ShowLoadingSpinner = value; OnPropertyChanged(nameof(ShowLoadingSpinner)); } }
         public int ResponseStatusCodeNumber => (int)_responseModel.StatusCode;
         public List<Action> PrerequestActions = new List<Action>();
+        public List<Action> PostRequestActions = new List<Action>();
         public CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
         #endregion
 
@@ -339,6 +360,10 @@ namespace VSRESTClient.UI.ViewModels
         public void OnPropertyChanged(string name)
         {
             PropertyChanged(this, new PropertyChangedEventArgs(name));
+        }
+        public void AddPostRequestAction(Action action)
+        {
+            PostRequestActions.Add(action);
         }
         public void AddParam(string name, string value)
         {
@@ -412,6 +437,7 @@ namespace VSRESTClient.UI.ViewModels
         }
         private async Task SendRequestCallbackAsync()
         {
+
             CancellationTokenSource = new CancellationTokenSource();
             ShowLoadingSpinner = true;
             if (string.IsNullOrEmpty(Url) || Url.Equals(StaticStrings.DefaultUrl))
@@ -438,60 +464,89 @@ namespace VSRESTClient.UI.ViewModels
             switch (_authorizationModel.AuthorizationType)
             {
                 case AuthorizationType.Bearer:
-                    if (!_optionsModel.Headers.Any(x => x.Name == "Authorization"))
-                        _optionsModel.Headers.Add(new HttpHeader("Authorization", $"Bearer {JWTToken}"));
+                    if (!string.IsNullOrEmpty(JWTToken))
+                    {
+                        if (!_optionsModel.Headers.Any(x => x.Name == "Authorization"))
+                            _optionsModel.Headers.Add(new HttpHeader("Authorization", $"Bearer {JWTToken}"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Bearer Token cannot be empty!");
+                        ShowLoadingSpinner = false;
+                        return;
+                    }
                     break;
                 case AuthorizationType.ApiKey:
+                    {
+                        if (!string.IsNullOrEmpty(CurrentApiKeyAuthorizationHeaderOrParamName) && !string.IsNullOrEmpty(CurrentApiKeyAuthorizationHeaderOrParamValue))
+                        {
+                            switch (CurrentAuthorizationAttachMethod)
+                            {
+                                case "Headers":
+                                    {
+                                        var indexOfApiKeyName = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamName));
+
+                                        if (indexOfApiKeyName >= 0)
+                                            _optionsModel.Headers[indexOfApiKeyName] = new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue);
+                                        else
+                                            _optionsModel.Headers.Add(new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                    }
+                                    break;
+                                case "QueryParams":
+                                    {
+                                        builder.AddQueryParam(new HttpParam(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                    }
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Api Key name or value cannot be empty");
+                            ShowLoadingSpinner = false;
+
+
+                            return;
+                        }
+                    }
+                    break;
+                case AuthorizationType.BasicAuth:
+                    if (!string.IsNullOrEmpty(CurrentBasicAuthorizationHeaderOrParamName) && !string.IsNullOrEmpty(CurrentBasicAuthorizationHeaderOrParamValue))
                     {
                         switch (CurrentAuthorizationAttachMethod)
                         {
                             case "Headers":
                                 {
-                                    var indexOfApiKeyName = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == CurrentApiKeyAuthorizationHeaderOrParamName));
+                                    var indexOfUsername = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == "Username"));
+                                    var indexOfPassword = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == "Password"));
 
-                                    if (indexOfApiKeyName >= 0)
-                                        _optionsModel.Headers[indexOfApiKeyName] = new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue);
+                                    if (indexOfUsername >= 0)
+                                        _optionsModel.Headers[indexOfUsername] = new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName);
                                     else
-                                        _optionsModel.Headers.Add(new HttpHeader(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                        _optionsModel.Headers.Add(new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName));
+
+
+                                    if (indexOfPassword >= 0)
+                                        _optionsModel.Headers[indexOfPassword] = new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue);
+
+                                    else
+                                        _optionsModel.Headers.Add(new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue));
                                 }
                                 break;
                             case "QueryParams":
                                 {
-                                    builder.AddQueryParam(new HttpParam(CurrentApiKeyAuthorizationHeaderOrParamName, CurrentApiKeyAuthorizationHeaderOrParamValue));
+                                    builder.AddQueryParam(new HttpParam("Username", CurrentBasicAuthorizationHeaderOrParamName));
+                                    builder.AddQueryParam(new HttpParam("Password", CurrentBasicAuthorizationHeaderOrParamValue));
                                 }
                                 break;
                         }
                     }
-                    break;
-                case AuthorizationType.BasicAuth:
-
-                    switch (CurrentAuthorizationAttachMethod)
+                    else
                     {
-                        case "Headers":
-                            {
-                                var indexOfUsername = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == "Username"));
-                                var indexOfPassword = _optionsModel.Headers.IndexOf(_optionsModel.Headers.FirstOrDefault(x => x.Name == "Password"));
-
-                                if (indexOfUsername >= 0)
-                                    _optionsModel.Headers[indexOfUsername] = new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName);
-                                else
-                                    _optionsModel.Headers.Add(new HttpHeader("Username", CurrentBasicAuthorizationHeaderOrParamName));
-
-
-                                if (indexOfPassword >= 0)
-                                    _optionsModel.Headers[indexOfPassword] = new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue);
-
-                                else
-                                    _optionsModel.Headers.Add(new HttpHeader("Password", CurrentBasicAuthorizationHeaderOrParamValue));
-                            }
-                            break;
-                        case "QueryParams":
-                            {
-                                builder.AddQueryParam(new HttpParam("Username", CurrentBasicAuthorizationHeaderOrParamName));
-                                builder.AddQueryParam(new HttpParam("Password", CurrentBasicAuthorizationHeaderOrParamValue));
-                            }
-                            break;
+                        MessageBox.Show("Username or Pasword cannot be empty");
+                        ShowLoadingSpinner = false;
+                        return;
                     }
+
                     break;
 
                 case AuthorizationType.NoAuth:
@@ -507,13 +562,24 @@ namespace VSRESTClient.UI.ViewModels
 
             var formatedContent = Beautifier.Instance.Format(response.Content, response.ContentType);
 
+            ResponseContentType = response.ContentType;
             ResponseContent = formatedContent;
             ResponseStatusCode = response.StatusCode.ToString();
-            ResponseContentType = response.ContentType;
             ShowLoadingSpinner = false;
+
+            if (ImageResponse)
+                ImageUrl = url;
+
+            if (PostRequestActions.Any())
+            {
+                foreach (var action in PostRequestActions)
+                {
+                    action();
+                }
+            }
+
             ResetHeaders();
             ResetParams();
-
 
         }
         private void ResetParams()

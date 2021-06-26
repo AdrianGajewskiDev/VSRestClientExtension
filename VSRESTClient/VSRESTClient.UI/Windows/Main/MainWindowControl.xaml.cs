@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using VSRESTClient.Core.Utils;
 using VSRESTClient.UI.Builders;
 using VSRESTClient.UI.Utils;
@@ -26,6 +28,7 @@ namespace VSRESTClient.UI.Windows.Main
             this.DataContext = viewModel;
             viewModel.AddPreRequestAction(FetchHttpHeaders);
             viewModel.AddPreRequestAction(FetchHttpParams);
+            viewModel.AddPostRequestAction(FetchImageSource);
         }
 
 
@@ -167,6 +170,11 @@ namespace VSRESTClient.UI.Windows.Main
             }
 
             viewModel.FetchHttpHeaders(@params);
+        }
+        private void FetchImageSource()
+        {
+            if(viewModel.ImageResponse)
+                ImageContainer.Source = new BitmapImage(new Uri(viewModel.ImageUrl));
         }
     }
 }

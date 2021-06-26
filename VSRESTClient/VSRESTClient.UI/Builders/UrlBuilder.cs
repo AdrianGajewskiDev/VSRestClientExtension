@@ -7,7 +7,7 @@ namespace VSRESTClient.UI.Builders
     {
         public UrlBuilder(string baseUrl)
         {
-            _baseUrl = baseUrl;
+            _baseUrl = baseUrl + "?";
 
             _source.Append(_baseUrl);
         }
@@ -20,22 +20,20 @@ namespace VSRESTClient.UI.Builders
         {
             if (!_source.ToString().Contains(param.Name))
             {
-                if (!_baseUrl.Contains("?"))
-                {
-                    _source.Append("?");
-                }
                 _source.Append($"{param.Name}={param.Value}&");
             }
 
             return this;
         }
 
-
         public string Build()
         {
             var url = _source.ToString();
 
             if (url.EndsWith("&"))
+                url = url.Remove(url.Length - 1);
+
+            if(url.EndsWith("?"))
                 url = url.Remove(url.Length - 1);
 
             return url;

@@ -71,7 +71,8 @@ namespace VSRESTClient.Core.Http
                 return new HttpResponse
                 {
                     Content = ex.Message,
-                    StatusCode = System.Net.HttpStatusCode.BadRequest
+                    StatusCode = System.Net.HttpStatusCode.BadRequest,
+                    ContentType = "text/plain"
                 };
             }
 
